@@ -10,18 +10,17 @@
                     <div class="mb-3 d-flex justify-content-start">
                         <a href="{{ route('barang.create') }}" class="btn btn-success mr-2">Tambah Barang</a>
                         <a href="{{ route('barang.exportXml') }}" class="btn btn-dark mr-2">Unduh XML</a>
-
                     </div>
 
-                    <!-- Form untuk mengimpor file XML (tersembunyi secara default) -->
-                    <form action="{{ route('barang.importXml') }}" method="POST" enctype="multipart/form-data"
-                        id="import-form" style="display: none;">
-                        @csrf
-                        <div class="form-group">
-                            <label for="file">Pilih File XML untuk Diimpor</label>
-                            <input type="file" name="file" class="form-control" accept=".xml" required>
+                    <!-- Form pencarian -->
+                    <form action="{{ route('barang.index') }}" method="GET" class="mb-4">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Cari barang atau kategori..." value="{{ request('search') }}">
+                            <div class="input-group-append">
+                                <button class="btn btn-primary" type="submit">Cari</button>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-success">Impor XML</button>
                     </form>
 
                     <!-- Tabel Barang -->
@@ -36,10 +35,10 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach ($barang as $b)
+                            @forelse ($barang as $b)
                                 <tr>
                                     <td class="font-weight-bold">{{ $b->nama_barang }}</td>
-                                    <td>{{ $b->kategori->nama_kategori }}</td>
+                                    <td>{{ $b->kategori->nama_kategori ?? '-' }}</td>
                                     <td>{{ $b->stok }}</td>
                                     <td>{{ number_format($b->harga, 0, ',', '.') }}</td>
                                     <td>
@@ -53,10 +52,32 @@
                                         </form>
                                     </td>
                                 </tr>
-                            @endforeach
+                            @empty
+                                <tr>
+                                    <td colspan="5" class="text-center">Tidak ada data barang ditemukan.</td>
+                                </tr>
+                            @endforelse
                         </tbody>
                     </table>
+
+                    <!-- Pagination -->
+                    <div class="d-flex justify-content-between mt-3">
+                        <!-- Tombol Previous -->
+                        @if ($barang->onFirstPage())
+                            <span class="btn btn-secondary btn-sm disabled">Previous</span>
+                        @else
+                            <a href="{{ $barang->previousPageUrl() }}" class="btn btn-secondary btn-sm">Previous</a>
+                        @endif
+
+                        <!-- Tombol Next -->
+                        @if ($barang->hasMorePages())
+                            <a href="{{ $barang->nextPageUrl() }}" class="btn btn-secondary btn-sm">Next</a>
+                        @else
+                            <span class="btn btn-secondary btn-sm disabled">Next</span>
+                        @endif
+                    </div>
                 </div>
+
             </div>
         </div>
     </div>
